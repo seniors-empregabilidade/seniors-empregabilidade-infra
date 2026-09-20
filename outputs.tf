@@ -1,0 +1,52 @@
+output "vpc_id" {
+  value = data.aws_vpc.main.id
+}
+
+output "subnets_publicas" {
+  description = "Sub-redes da API. MapPublicIpOnLaunch é false: a instância precisa de EIP explícito."
+  value       = data.aws_subnets.public.ids
+}
+
+output "subnets_privadas" {
+  description = "Sub-redes do banco, sem rota para a internet."
+  value       = data.aws_subnets.private.ids
+}
+
+output "sg_api_id" {
+  value = data.aws_security_group.api.id
+}
+
+output "sg_db_id" {
+  value = data.aws_security_group.db.id
+}
+
+output "ecr_repository_url" {
+  description = "Destino do push do CodeBuild e origem do pull da instância."
+  value       = aws_ecr_repository.api.repository_url
+}
+
+output "uploads_bucket" {
+  value = aws_s3_bucket.uploads.bucket
+}
+
+output "log_group" {
+  value = aws_cloudwatch_log_group.api.name
+}
+
+output "db_endpoint" {
+  description = "Alcançável só de dentro da VPC. Do notebook, por port forwarding do SSM."
+  value       = aws_db_instance.main.address
+}
+
+output "db_secret_arn" {
+  description = "Segredo gerenciado pela AWS com usuário e senha do banco."
+  value       = aws_db_instance.main.master_user_secret[0].secret_arn
+}
+
+output "cognito_user_pool_id" {
+  value = one(data.aws_cognito_user_pools.main.ids)
+}
+
+output "cognito_client_id" {
+  value = var.cognito_client_id
+}
