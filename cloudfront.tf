@@ -1,7 +1,4 @@
-# O CloudFront existe por um motivo simples: dá HTTPS de graça em um domínio
-# *.cloudfront.net, sem precisar de domínio próprio. Sem ele a SPA (servida em
-# HTTPS pelo Amplify) não conseguiria chamar a API, porque o navegador bloqueia
-# conteúdo misto.
+# O CloudFront existe por um motivo simples: dá HTTPS de graça em um domínio.
 resource "aws_cloudfront_distribution" "api" {
   enabled = true
   comment = "API do Seniors - Empregabilidade"
@@ -15,9 +12,7 @@ resource "aws_cloudfront_distribution" "api" {
     custom_origin_config {
       http_port  = 80
       https_port = 443
-      # Em claro até existir um nome DNS para a origem com certificado
-      # confiável: o CloudFront recusa certificado self-signed. Registrado como
-      # desvio conhecido no plano.
+      # Em claro até existir um nome DNS para a origem com certificado.
       origin_protocol_policy = "http-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }

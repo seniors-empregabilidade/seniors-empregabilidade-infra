@@ -40,9 +40,7 @@ resource "aws_db_instance" "main" {
   publicly_accessible    = false
   multi_az               = false
 
-  # Janelas fixadas de propósito. Sem elas a AWS sorteia, e com
-  # auto_minor_version_upgrade ligado um reboot de manutenção pode cair no meio
-  # da apresentação. UTC: 06:00 é madrugada no Brasil.
+  # Janelas fixadas de propósito. Sem elas a AWS sorteia, e com.
   backup_retention_period = 7
   backup_window           = "06:00-07:00"
   maintenance_window      = "Mon:07:00-Mon:08:00"

@@ -1,6 +1,4 @@
-# Configuração da aplicação que não é segredo. Fica no Parameter Store, e não
-# no user_data, porque mudar o user_data SUBSTITUI a instância — e a URL do
-# frontend, que entra no CORS, só existe depois que o Amplify é criado.
+# Configuração da aplicação que não é segredo. Fica no Parameter Store, e não.
 resource "aws_ssm_parameter" "api_config" {
   name = "/seniors/api/config"
   type = "String"

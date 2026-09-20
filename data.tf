@@ -1,7 +1,4 @@
-# A rede foi criada pelo console em 07/09/2026 e está correta. O Terraform a
-# consome por data source em vez de importar: importar VPC, 4 sub-redes, IGW,
-# 3 route tables, associações e 2 SGs exigiria que cada bloco batesse com a
-# realidade, e um bloco errado destrói e recria a rede inteira.
+# A rede foi criada pelo console em 07/09/2026 e está correta. O Terraform a.
 
 data "aws_vpc" "main" {
   filter {
