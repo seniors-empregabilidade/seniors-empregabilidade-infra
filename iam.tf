@@ -43,6 +43,7 @@ resource "aws_iam_role_policy" "api" {
           "ecr:BatchGetImage",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchCheckLayerAvailability",
+          "ecr:DescribeImages",
         ]
         Resource = aws_ecr_repository.api.arn
       },

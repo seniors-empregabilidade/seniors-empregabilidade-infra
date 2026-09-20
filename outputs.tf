@@ -64,3 +64,12 @@ output "api_instance_id" {
 output "api_eip" {
   value = aws_eip.api.public_ip
 }
+
+output "frontend_url" {
+  value = "https://${aws_amplify_branch.main.branch_name}.${aws_amplify_app.frontend.id}.amplifyapp.com"
+}
+
+output "github_connection_arn" {
+  description = "Nasce PENDING: precisa ser autorizada no console."
+  value       = aws_codestarconnections_connection.github.arn
+}

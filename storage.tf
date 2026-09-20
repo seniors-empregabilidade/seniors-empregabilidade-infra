@@ -1,6 +1,4 @@
-# Registro das imagens da API. IMMUTABLE porque a wiki promete que "cada versão
-# publicada seja imutável e rastreável" — o deploy referencia sempre o SHA do
-# commit, então a tag `latest` não é usada e não precisa ser sobrescrita.
+# Registro das imagens da API. IMMUTABLE porque a wiki promete que "cada versão.
 resource "aws_ecr_repository" "api" {
   name                 = "seniors-api"
   image_tag_mutability = "IMMUTABLE"
@@ -27,9 +25,7 @@ resource "aws_ecr_lifecycle_policy" "api" {
   })
 }
 
-# Currículos, documentos e imagens enviados pelos usuários. Sempre por URL
-# assinada: o bucket nunca é público. A criptografia em repouso é o SSE-S3 que
-# o S3 aplica por padrão desde 2023, então não há recurso para isso aqui.
+# Currículos, documentos e imagens enviados pelos usuários. Sempre por URL.
 resource "aws_s3_bucket" "uploads" {
   bucket = "seniors-uploads-${data.aws_caller_identity.current.account_id}"
 }

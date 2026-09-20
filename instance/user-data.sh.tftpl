@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # Prepara a instância. Roda uma vez, no primeiro boot.
-# Trocar este arquivo SUBSTITUI a instância: por isso a configuração da
-# aplicação não mora aqui, e sim no SSM Parameter Store.
 set -euxo pipefail
 
 # 1 GB de swap. É o que torna 0,5 GiB de RAM viável: sem ele, o alembic
