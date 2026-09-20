@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Prepara a instância. Roda uma vez, no primeiro boot.
+# Trocar este arquivo SUBSTITUI a instância: por isso a configuração da
+# aplicação não mora aqui, e sim no SSM Parameter Store.
+set -euxo pipefail
+
+# 1 GB de swap. É o que torna 0,5 GiB de RAM viável: sem ele, o alembic
+# rodando ao lado do container antigo durante o deploy derruba a máquina.
+if [ ! -f /swapfile ]; then
+  fallocate -l 1G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  sysctl -w vm.swappiness=10
+  echo 'vm.swappiness=10' > /etc/sysctl.d/99-swap.conf
+fi
+
+dnf install -y docker
+systemctl enable --now docker
+
+# O AL2023 não traz o plugin do compose: vem separado.
+install -d /usr/local/lib/docker/cli-plugins
+curl -sSfL "https://github.com/docker/compose/releases/download/v2.39.2/docker-compose-linux-aarch64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+install -d -m 755 /opt/seniors
+
+# Só o que não muda e não é segredo. O resto o deploy.sh lê em runtime.
+cat > /opt/seniors/static.env <<'STATIC'
+AWS_REGION=${region}
+ECR_REPO=${ecr_repo}
+DB_HOST=${db_host}
+DB_NAME=${db_name}
+DB_SECRET_ARN=${db_secret_arn}
+API_SECRET_ARN=${api_secret_arn}
+STATIC
+chmod 600 /opt/seniors/static.env
+
+cat > /opt/seniors/compose.yaml <<'COMPOSE'
+${compose}
+COMPOSE
+
+cat > /opt/seniors/deploy.sh <<'DEPLOY'
+${deploy}
+DEPLOY
+chmod 750 /opt/seniors/deploy.sh
+
+# Se já existe imagem no ECR, sobe a aplicação sozinha. É isso que faz uma
+# instância substituída voltar no ar sem precisar de um deploy manual.
+ULTIMA=$(aws ecr describe-images --repository-name ${ecr_name} --region ${region} \
+  --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageTags[0]' --output text 2>/dev/null || echo None)
+if [ "$ULTIMA" != "None" ] && [ -n "$ULTIMA" ]; then
+  /opt/seniors/deploy.sh "$ULTIMA" || true
+fi

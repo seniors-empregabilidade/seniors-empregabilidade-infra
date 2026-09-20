@@ -36,3 +36,13 @@ variable "alert_email" {
   description = "Destino dos alarmes. A inscrição no SNS exige clique de confirmação no e-mail."
   type        = string
 }
+
+variable "cors_origins" {
+  description = <<-TXT
+    Origens permitidas pela API. Começa com a URL do CloudFront porque o app
+    Amplify ainda não existe; quando existir, atualizar o parâmetro no SSM com
+    `aws ssm put-parameter --overwrite`, sem recriar a instância.
+  TXT
+  type        = list(string)
+  default     = ["http://localhost:5173"]
+}
