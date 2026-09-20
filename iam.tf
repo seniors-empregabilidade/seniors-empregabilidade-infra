@@ -173,3 +173,47 @@ resource "aws_iam_role_policy_attachment" "amplify" {
   role       = aws_iam_role.amplify.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess-Amplify"
 }
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+resource "aws_iam_role" "frontend_deploy" {
+  name = "ages-seniors-frontend-deploy-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Federated = aws_iam_openid_connect_provider.github.arn }
+      Action    = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          "token.actions.githubusercontent.com:sub" = "repo:seniors-empregabilidade@315976255/seniors-empregabilidade-frontend@1331398943:ref:refs/heads/main"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "frontend_deploy" {
+  name = "seniors-frontend-deploy"
+  role = aws_iam_role.frontend_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "amplify:CreateDeployment",
+        "amplify:StartDeployment",
+        "amplify:GetJob",
+        "amplify:GetBranch",
+      ]
+      Resource = "${aws_amplify_app.frontend.arn}/branches/main/*"
+    }]
+  })
+}
