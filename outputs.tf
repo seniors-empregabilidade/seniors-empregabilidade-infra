@@ -50,3 +50,17 @@ output "cognito_user_pool_id" {
 output "cognito_client_id" {
   value = var.cognito_client_id
 }
+
+output "api_url" {
+  description = "Endereço público da API. HTTPS com certificado da AWS, sem domínio próprio."
+  value       = "https://${aws_cloudfront_distribution.api.domain_name}"
+}
+
+output "api_instance_id" {
+  description = "Para `aws ssm start-session --target <id>`. Não há SSH."
+  value       = aws_instance.api.id
+}
+
+output "api_eip" {
+  value = aws_eip.api.public_ip
+}

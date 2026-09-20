@@ -47,6 +47,12 @@ resource "aws_iam_role_policy" "api" {
         Resource = aws_ecr_repository.api.arn
       },
       {
+        Sid      = "LerAConfiguracaoDaAplicacao"
+        Effect   = "Allow"
+        Action   = "ssm:GetParameter"
+        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/seniors/api/*"
+      },
+      {
         Sid      = "LerSomenteOsDoisSegredosDoProjeto"
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
