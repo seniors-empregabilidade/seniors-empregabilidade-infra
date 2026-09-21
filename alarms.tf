@@ -48,7 +48,7 @@ resource "aws_cloudwatch_metric_alarm" "disco_do_banco" {
   evaluation_periods  = 2
   threshold           = 2147483648 # 2 GB
   comparison_operator = "LessThanThreshold"
-  dimensions          = { DBInstanceIdentifier = aws_db_instance.main.id }
+  dimensions          = { DBInstanceIdentifier = aws_db_instance.main.identifier }
   alarm_actions       = [aws_sns_topic.alerts.arn]
 }
 
