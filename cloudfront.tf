@@ -5,16 +5,12 @@ resource "aws_cloudfront_distribution" "api" {
 
   origin {
     origin_id = "ec2-api"
-    # O CloudFront não aceita IP como origem: precisa de nome. O EIP fornece um
-    # DNS público estável.
+    # A VPC origin mantém o tráfego dentro da rede da AWS: a instância não é
+    # alcançada pelo IP público.
     domain_name = aws_eip.api.public_dns
 
-    custom_origin_config {
-      http_port  = 80
-      https_port = 443
-      # Em claro até existir um nome DNS para a origem com certificado.
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
+    vpc_origin_config {
+      vpc_origin_id = aws_cloudfront_vpc_origin.api.id
     }
   }
 
