@@ -1,10 +1,12 @@
 resource "aws_sns_topic" "alerts" {
-  name = "seniors-alertas"
+  name = "seniors-alerts"
 }
 
-# A inscrição exige um clique de confirmação no e-mail. Sem ele, nenhum
-# alarme chega — e o Terraform não tem como saber disso.
+# Sem destino cadastrado nenhum alarme chega a ninguém. A inscrição exige
+# clique de confirmação no e-mail, e o Terraform não tem como saber se houve.
 resource "aws_sns_topic_subscription" "email" {
+  count = var.alert_email == "" ? 0 : 1
+
   topic_arn = aws_sns_topic.alerts.arn
   protocol  = "email"
   endpoint  = var.alert_email

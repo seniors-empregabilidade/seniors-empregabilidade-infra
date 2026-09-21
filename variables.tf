@@ -33,8 +33,9 @@ variable "cognito_client_id" {
 }
 
 variable "alert_email" {
-  description = "Destino dos alarmes. A inscrição no SNS exige clique de confirmação no e-mail."
+  description = "Destino dos alarmes. Vazio deixa o tópico sem inscrito, e nenhum alarme chega a ninguém."
   type        = string
+  default     = ""
 }
 
 variable "cors_origins" {
