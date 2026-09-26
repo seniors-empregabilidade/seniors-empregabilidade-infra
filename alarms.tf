@@ -57,7 +57,8 @@ resource "aws_cloudwatch_metric_alarm" "disco_do_banco" {
 resource "aws_cloudwatch_log_metric_filter" "erros_5xx" {
   name           = "seniors-api-5xx"
   log_group_name = aws_cloudwatch_log_group.api.name
-  pattern        = "{ $.status_code = 5* }"
+  # The API logs key=value pairs, not JSON; a JSON selector never matches.
+  pattern = "%status_code=5[0-9][0-9]%"
 
   metric_transformation {
     name          = "ApiErros5xx"
