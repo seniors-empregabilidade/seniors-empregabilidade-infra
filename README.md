@@ -1,7 +1,7 @@
 # Infraestrutura — Seniors Empregabilidade
 
 Produção na conta AGES `951614974043`, região **us-east-2 (Ohio)**, em Terraform.
-O plano completo e as justificativas estão fora deste repo, em `aws-infra-plan-2026-09-19/`.
+A arquitetura, o custo e o porquê de cada decisão estão na [wiki do projeto](https://tools.ages.pucrs.br/2026-2/2lm-4lm/seniors-empregabilidade/seniors-empregabilidade-wiki/-/wikis/Infraestrutura).
 
 ## Este repositório é público
 
@@ -20,9 +20,7 @@ O plano completo e as justificativas estão fora deste repo, em `aws-infra-plan-
 - Saída de `terraform plan` colada em issue ou PR: além de IDs, pode renderizar valor sensível.
 - Qualquer chave, token ou senha, inclusive "só para testar".
 
-Este repositório é **privado**, ao contrário dos dois de produto. Consequência: o secret scanning com push protection do GitHub, que é gratuito só em repositório público, **não está disponível aqui**. O substituto é o passo `gitleaks` na CI, que falha o PR se encontrar credencial. Não é motivo para relaxar — ele pega formatos conhecidos, não tudo.
-
-Se o repo um dia virar público, ligar secret scanning e push protection nas configurações; o passo do gitleaks pode ficar assim mesmo.
+Secret scanning e push protection do GitHub estão ligados, como nos dois repositórios de produto. O passo `gitleaks` na CI é uma segunda barreira: falha o PR se encontrar credencial. Nenhum dos dois é motivo para relaxar — eles pegam formatos conhecidos, não tudo.
 
 ### O que pode, e por que não é problema
 
@@ -42,7 +40,7 @@ O `apply` é sempre manual, com o plan revisado. Não há `plan` na CI: isso exi
 
 ## Bootstrap do state (uma vez só, já feito)
 
-O bucket do state é o único recurso criado fora do Terraform, por ovo-e-galinha:
+O bucket do state é criado fora do Terraform, por ovo-e-galinha:
 
 ```sh
 aws s3api create-bucket --bucket seniors-tfstate-951614974043 \
@@ -56,6 +54,12 @@ aws s3api put-public-access-block --bucket seniors-tfstate-951614974043 \
 O lock é o `use_lockfile` nativo do S3. Não há tabela DynamoDB, e não precisa.
 
 ## O que o Terraform NÃO gerencia
+
+**Três coisas foram feitas fora dele e ficam assim:**
+
+- **O bucket do state**, pelo bootstrap acima.
+- **A credencial do CodeBuild no GitHub.** É um token de acesso pessoal importado pela CLI (`aws codebuild import-source-credentials`), de propósito: declarado aqui, o token ficaria em claro no state. Para trocar o token, importe de novo pela CLI; o `apply` não mexe nisso.
+- **A revogação das regras antigas do SG da API.** As regras de entrada 80/443 de `0.0.0.0/0` vieram do assistente do console e foram revogadas à mão em 20/09/2026. Como nunca estiveram no Terraform, o `plan` não detecta se alguém as recriar.
 
 **A rede.** VPC, sub-redes, IGW, route tables e security groups foram criados pelo console em 07/09/2026, estão corretos, e entram aqui por `data source` (`data.tf`). Só as tags `Project=seniors` são aplicadas neles, via `aws_ec2_tag`.
 
