@@ -23,9 +23,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      # Este repositório é privado, e secret scanning com push protection só é
-      # gratuito em repositório público. Este passo é o substituto: a regra
-      # "nada de segredo aqui" passa a ter quem a verifique a cada PR.
+      # Second barrier behind GitHub push protection: fails the PR on any
+      # known credential format.
       - name: Scan for secrets
         run: |
           curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz" \
