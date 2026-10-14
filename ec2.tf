@@ -61,6 +61,11 @@ resource "aws_instance" "api" {
   })
 
   tags = { Name = "seniors-api" }
+
+  # O parâmetro "latest" muda a cada AMI nova; trocar a imagem é decisão (-replace).
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
 
 # A sub-rede tem MapPublicIpOnLaunch = false, então o IP público é explícito.
