@@ -36,10 +36,12 @@ resource "aws_instance" "api" {
     encrypted   = true
   }
 
-  # IMDSv2 obrigatório: fecha SSRF contra as credenciais da role.
+  # IMDSv2 obrigatório: fecha SSRF contra as credenciais da role. Hop 2 deixa o
+  # container (rede bridge do Docker) pegar as credenciais que assinam o S3.
   metadata_options {
-    http_tokens   = "required"
-    http_endpoint = "enabled"
+    http_tokens                 = "required"
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 2
   }
 
   user_data = templatefile("${path.module}/instance/user-data.sh.tftpl", {

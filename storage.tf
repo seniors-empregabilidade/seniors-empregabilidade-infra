@@ -46,6 +46,32 @@ resource "aws_s3_bucket_versioning" "uploads" {
   }
 }
 
+# Comprovante apagado vira versão antiga; sem expirar, o dado pessoal fica para
+# sempre. Sete dias ainda permitem desfazer uma exclusão por engano.
+resource "aws_s3_bucket_lifecycle_configuration" "uploads" {
+  bucket = aws_s3_bucket.uploads.id
+
+  rule {
+    id     = "expire-noncurrent-versions"
+    status = "Enabled"
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 7
+    }
+
+    expiration {
+      expired_object_delete_marker = true
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.uploads]
+}
+
 # Retenção curta de propósito: 5 GB/mês de ingestão são gratuitos e não temos
 # Cost Explorer para perceber um log group crescendo sem teto.
 resource "aws_cloudwatch_log_group" "api" {
