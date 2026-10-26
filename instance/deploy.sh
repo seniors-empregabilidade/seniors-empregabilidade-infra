@@ -19,6 +19,9 @@ ATUAL="$(grep -E '^IMAGE_TAG=' "$DIR/.env" 2>/dev/null | cut -d= -f2 || true)"
 
 aws ecr get-login-password --region "$AWS_REGION" \
   | docker login --username AWS --password-stdin "$ECR_REPO" >/dev/null
+# Imagem com tag nunca é "dangling": sem -a elas se acumulam até lotar os 8 GB.
+# Fica só a do container no ar, que é o alvo do rollback.
+docker image prune -af >/dev/null 2>&1 || true
 docker pull "$ECR_REPO:$TAG"
 
 # A partir daqui há segredo em variável: nada de rastro no log do SSM.
